@@ -1,26 +1,23 @@
+//TODO
+//-scoreboard
+//-check for remaining moves before ending the game
+//check if a move will result in a change to the board before allowing it to happen
+
+mod config;
+mod movement;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std::io;
 
-#[derive(Debug, Clone, Copy)]
-enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-
-const GRID_SIZE: usize = 4;
-
 fn initialize_board() -> Vec<Vec<u32>> {
-    vec![vec![0; GRID_SIZE]; GRID_SIZE]
+    vec![vec![0; config::constants::GRID_SIZE]; config::constants::GRID_SIZE]
 }
 
 fn generate_empty_tiles(board: &Vec<Vec<u32>>) -> Vec<(usize, usize)> {
     let mut empty_tiles = Vec::new();
 
-    for i in 0..GRID_SIZE {
-        for j in 0..GRID_SIZE {
+    for i in 0..config::constants::GRID_SIZE {
+        for j in 0..config::constants::GRID_SIZE {
             if board[i][j] == 0 {
                 empty_tiles.push((i, j));
             }
@@ -37,53 +34,12 @@ fn choose_random_tile(empty_tiles: &mut Vec<(usize, usize)>) -> Option<(usize, u
     })
 }
 
-fn move_tiles(
-    board: &mut Vec<Vec<u32>>,
-    empty_tiles: &mut Vec<(usize, usize)>,
-    direction: Direction,
-) {
-    let (di, dj) = match direction {
-        Direction::Up => (-1, 0),
-        Direction::Down => (1, 0),
-        Direction::Left => (0, -1),
-        Direction::Right => (0, 1),
-    };
-    //loop through board starting from second row
-    for i in 1..GRID_SIZE {
-        for j in 0..GRID_SIZE {
-            //if there is a number
-            if board[i][j] != 0 {
-                //if 0 above the number move the number up
-                let mut k = 1;
-                while i >= k && board[i - k][j] == 0 {
-                    board[i - k][j] = board[i - k + 1][j];
-                    board[i - k + 1][j] = 0;
-
-                    //add now empty tile to list of empty tiles and remove the one now populated
-                    empty_tiles.push((i - k + 1, j));
-                    empty_tiles.retain(|&tile| tile != (i - k, j));
-                    k += 1;
-                }
-
-                //if above is same combine values
-                if i >= k && board[i - k][j] == board[i - k + 1][j] {
-                    board[i - k][j] += board[i - k + 1][j];
-                    board[i - k + 1][j] = 0;
-
-                    //add now empty tile to list of empty tiles
-                    empty_tiles.push((i - k + 1, j));
-                }
-            }
-        }
-    }
-}
-
 fn make_move(board: &mut Vec<Vec<u32>>, empty_tiles: &mut Vec<(usize, usize)>, direction: char) {
     match direction {
-        'w' => move_tiles(board, empty_tiles, Direction::Up),
-        's' => move_tiles(board, empty_tiles, Direction::Down),
-        'a' => move_tiles(board, empty_tiles, Direction::Left),
-        'd' => move_tiles(board, empty_tiles, Direction::Right),
+        'w' => movement::move_up(board, empty_tiles),
+        's' => movement::move_down(board, empty_tiles),
+        'a' => movement::move_left(board, empty_tiles),
+        'd' => movement::move_right(board, empty_tiles),
         _ => println!("Invalid move! Please use 'w' (up), 's' (down), 'a' (left), or 'd' (right)."),
     }
 }
