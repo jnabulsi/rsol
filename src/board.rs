@@ -78,16 +78,18 @@ impl Board {
         println!();
     }
 
-    pub fn move_tile(&mut self, direction: Direction) {
+    pub fn move_tile(&mut self, direction: Direction) -> bool {
         let (row_range, col_range, i_change, j_change) = match direction {
             Direction::Up => (&ROW_RANGE_UP[..], &COL_RANGE_UP[..], -1, 0),
             Direction::Down => (&ROW_RANGE_DOWN[..], &COL_RANGE_DOWN[..], 1, 0),
             Direction::Left => (&ROW_RANGE_LEFT[..], &COL_RANGE_LEFT[..], 0, -1),
             Direction::Right => (&ROW_RANGE_RIGHT[..], &COL_RANGE_RIGHT[..], 0, 1),
         };
+        let mut changed = false;
 
         for &i in row_range {
             for &j in col_range {
+                //only process non 0 tiles
                 if self.tiles[i][j].value != 0 {
                     let mut current_i = i;
                     let mut current_j = j;
@@ -97,6 +99,7 @@ impl Board {
                         let next_i = (current_i as isize + i_change) as usize;
                         let next_j = (current_j as isize + j_change) as usize;
 
+                        //check the next tile is in range
                         if next_i < self.tiles.len() && next_j < self.tiles[next_i].len() {
                             let current_value = self.tiles[current_i][current_j].value;
                             let next_value = self.tiles[next_i][next_j].value;
@@ -106,6 +109,7 @@ impl Board {
                                 // check if value in direction is 0
                                 // or if values are the same
                                 if next_value == 0 || next_value == current_value {
+                                    changed = true;
                                     self.tiles[next_i][next_j] = self.tiles[next_i][next_j]
                                         .merge(self.tiles[current_i][current_j]);
                                     self.tiles[current_i][current_j].value = 0;
@@ -131,5 +135,6 @@ impl Board {
                 }
             }
         }
+        changed
     }
 }

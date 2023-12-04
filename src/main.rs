@@ -1,7 +1,5 @@
 //TODO
 //-scoreboard
-//check if a move will result in a change to the board before allowing it to happen
-//enter is valid input for some reason
 
 mod board;
 mod config;
@@ -11,13 +9,29 @@ use config::constants::*;
 use config::Direction;
 use std::io;
 
-fn make_move(board: &mut Board, direction: char) {
+fn make_move(board: &mut Board, direction: char) -> bool {
+    let board_changed: bool;
     match direction {
-        'w' => board.move_tile(Direction::Up),
-        's' => board.move_tile(Direction::Down),
-        'a' => board.move_tile(Direction::Left),
-        'd' => board.move_tile(Direction::Right),
-        _ => println!("Invalid move! Please use 'w' (up), 's' (down), 'a' (left), or 'd' (right)."),
+        'w' => {
+            board_changed = board.move_tile(Direction::Up);
+            board_changed
+        }
+        's' => {
+            board_changed = board.move_tile(Direction::Down);
+            board_changed
+        }
+        'a' => {
+            board_changed = board.move_tile(Direction::Left);
+            board_changed
+        }
+        'd' => {
+            board_changed = board.move_tile(Direction::Right);
+            board_changed
+        }
+        _ => {
+            println!("Invalid move! Please use 'w' (up), 's' (down), 'a' (left), or 'd' (right).");
+            false
+        }
     }
 }
 
@@ -44,19 +58,23 @@ fn main() {
 
         Board::generate_empty_tiles(&board.tiles);
         Board::print_empty_tiles(&board);
-        //take user input
-        let mut input = String::new();
-        println!("Enter move (w/s/a/d): ");
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Failed to read line");
 
-        // Make the move based on user input
-        //let mut input: String = "w".to_string();
-        if let Some(c) = input.chars().next() {
-            make_move(&mut board, c);
-        } else {
-            println!("Invalid input!");
+        let mut valid_move = false;
+        while !valid_move {
+            //take user input
+            let mut input = String::new();
+            println!("Enter move (w/s/a/d): ");
+            io::stdin()
+                .read_line(&mut input)
+                .expect("Failed to read line");
+
+            // Make the move based on user input
+            //let mut input: String = "w".to_string();
+            if let Some(c) = input.chars().next() {
+                valid_move = make_move(&mut board, c);
+            } else {
+                println!("Invalid input!");
+            }
         }
     }
 }
