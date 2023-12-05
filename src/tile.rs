@@ -11,7 +11,7 @@ impl Tile {
         Tile { value: 0 }
     }
 
-    //add self to passed tiles value and set self value to 0
+    //add values and return new tile with new value
     pub fn merge(self, other: Tile) -> Tile {
         Tile {
             value: self.value + other.value,
